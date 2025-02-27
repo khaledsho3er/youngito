@@ -1,0 +1,95 @@
+:root {
+  --primary-color: #ffffff; /* Blue */
+  --secondary-color: #ff5722; /* Orange */
+  --second-secondary-color: #000000; /* Orange */
+  --background-color: #f4f4f4; /* Light gray */
+  --text-color: #000000; /* Dark gray */
+}
+@font-face {
+  font-family: "FormulaBold";
+  src: url("/fonts/Formula-Bold.otf") format("opentype");
+  font-weight: bold;
+  font-style: normal;
+}
+
+body {
+  font-family: "FormulaBold";
+}
+
+.page-red {
+  background-image: url("Assets/Team-Photo-1.webp");
+  color: var(--primary-color);
+  height: 100vh;
+  background-position: center;
+  justify-content: center;
+  align-items: center;
+}
+
+.login-form {
+  margin: auto;
+}
+
+.login-logo {
+  justify-content: flex-start;
+  align-items: flex-start;
+  margin: 0;
+  margin-bottom: 20px; /* Space between logo and form */
+  width: 150px; /* Adjust size as needed */
+  height: auto; /* Maintain aspect ratio */
+}
+
+.glass-container {
+  background: rgba(255, 255, 255, 0.15) !important; /* Semi-transparent white */
+  backdrop-filter: blur(12px) !important; /* Blur effect */
+  -webkit-backdrop-filter: blur(12px) !important; /* Safari support */
+  border-radius: 18px !important; /* Rounded corners */
+  padding: 20px;
+  border: 1px solid rgba(255, 255, 255, 0.18); /* White border */
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.3); /* Soft shadow */
+  color: var(--primary-color);
+  display: flex;
+  flex-direction: column;
+  align-items: center; /* Centers all form elements horizontally */
+  justify-content: center;
+  width: 100%;
+  max-width: 400px; /* Prevent it from becoming too large */
+  text-align: center;
+}
+.auth-btn {
+  background-color: var(--background-color) !important;
+  color: var(--second-secondary-color) !important;
+  border: 1px solid rgba(255, 255, 255, 0.18) !important; /* White border */
+  width: 45% !important;
+  border-radius: 8px !important;
+  padding: 11px 5px !important;
+  margin-top: 15px !important;
+  font-size: 20px !important;
+  cursor: pointer;
+  font-family: "FormulaBold" !important;
+  font-weight: bold !important;
+  transition: background-color 0.3s;
+}
+.custom-textfield {
+  background-color: transparent;
+  border-radius: 8px;
+}
+
+.custom-textfield .MuiOutlinedInput-root {
+  border-radius: 8px;
+}
+
+.custom-textfield .MuiOutlinedInput-root fieldset {
+  border-color: white;
+}
+
+.custom-textfield .MuiOutlinedInput-root:hover fieldset {
+  border-color: black;
+}
+
+.custom-textfield .MuiOutlinedInput-root.Mui-focused fieldset {
+  border-color: white;
+}
+
+.custom-textfield .MuiInputBase-input {
+  color: black !important;
+}
