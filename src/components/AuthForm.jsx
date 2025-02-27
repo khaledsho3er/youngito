@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useState } from "react";
 import {
   Container,
   TextField,
@@ -7,13 +7,17 @@ import {
   Paper,
   Box,
 } from "@mui/material";
+import { login, signup } from "../utils/firebaseAuth"; // Import Firebase auth functions
 
 import { useFormik } from "formik";
 import * as Yup from "yup";
 import { motion } from "framer-motion"; // Import Framer Motion
-
+import { Link, useNavigate } from "react-router-dom";
+import axios from "axios";
 const AuthForm = ({ isSignUp }) => {
-  // Validation Schema (Using Yup)
+  const navigate = useNavigate();
+  const [loading, setLoading] = useState(false);
+
   const validationSchema = Yup.object({
     username: isSignUp
       ? Yup.string().required("Username is required")
@@ -22,18 +26,53 @@ const AuthForm = ({ isSignUp }) => {
     password: Yup.string()
       .min(6, "Password must be at least 6 characters")
       .required("Password is required"),
+    phoneNumber: isSignUp
+      ? Yup.string().required("Phone number is required")
+      : Yup.string(),
   });
 
-  // Formik Form Handler
   const formik = useFormik({
-    initialValues: { username: "", email: "", password: "" },
+    initialValues: { username: "", email: "", password: "", phoneNumber: "" },
     validationSchema,
-    onSubmit: (values) => {
-      console.log("Form Data:", values);
-      alert(isSignUp ? "Signed Up Successfully!" : "Logged In Successfully!");
+    onSubmit: async (values) => {
+      setLoading(true);
+      try {
+        let token;
+        if (isSignUp) {
+          token = await signup(values.email, values.password); // Get Firebase Token
+
+          // Send user data to backend with Firebase token
+          await axios.post(
+            "http://localhost:5000/api/auth/register",
+            {
+              email: values.email,
+              name: values.username,
+              role: "manager",
+              status: "active",
+              phoneNumber: values.phoneNumber,
+            },
+            {
+              headers: {
+                Authorization: `Bearer ${token}`,
+              },
+            }
+          );
+
+          alert("Signed up successfully!");
+        } else {
+          token = await login(values.email, values.password); // Get Firebase Token
+          alert("Logged in successfully!");
+        }
+
+        localStorage.setItem("token", token); // Store Firebase Token
+        navigate("/home");
+      } catch (error) {
+        alert("Authentication failed: " + error.message);
+      } finally {
+        setLoading(false);
+      }
     },
   });
-
   return (
     <Container component="main" maxWidth="xs">
       <Paper elevation={3} className="glass-container">
@@ -70,16 +109,37 @@ const AuthForm = ({ isSignUp }) => {
           onSubmit={formik.handleSubmit}
         >
           {isSignUp && (
-            <TextField
-              fullWidth
-              margin="normal"
-              label="Username"
-              name="username"
-              value={formik.values.username}
-              onChange={formik.handleChange}
-              error={formik.touched.username && Boolean(formik.errors.username)}
-              helperText={formik.touched.username && formik.errors.username}
-            />
+            <>
+              <TextField
+                fullWidth
+                margin="normal"
+                label="Username"
+                name="username"
+                className="custom-textfield"
+                value={formik.values.username}
+                onChange={formik.handleChange}
+                error={
+                  formik.touched.username && Boolean(formik.errors.username)
+                }
+                helperText={formik.touched.username && formik.errors.username}
+              />
+              <TextField
+                fullWidth
+                margin="normal"
+                label="phoneNumber"
+                name="phoneNumber"
+                className="custom-textfield"
+                value={formik.values.phoneNumber}
+                onChange={formik.handleChange}
+                error={
+                  formik.touched.phoneNumber &&
+                  Boolean(formik.errors.phoneNumber)
+                }
+                helperText={
+                  formik.touched.phoneNumber && formik.errors.phoneNumber
+                }
+              />
+            </>
           )}
           <TextField
             fullWidth
@@ -108,7 +168,7 @@ const AuthForm = ({ isSignUp }) => {
             {isSignUp ? "Sign Up" : "Sign In"}
           </Button>
         </Box>
-        {/* <Typography
+        <Typography
           variant="body2"
           sx={{ marginTop: 2, cursor: "pointer", color: "white" }}
           component={Link}
@@ -117,7 +177,7 @@ const AuthForm = ({ isSignUp }) => {
           {isSignUp
             ? "Already have an account?Sign In"
             : "Don't have an account? Sign Up"}
-        </Typography> */}
+        </Typography>
       </Paper>
     </Container>
   );

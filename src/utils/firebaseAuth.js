@@ -1,20 +1,36 @@
-import { signInWithEmailAndPassword, createUserWithEmailAndPassword } from "firebase/auth";
-import { auth } from "./firebase";
-
-export const login = async (email, password) => {
-  try {
-    const userCredential = await signInWithEmailAndPassword(auth, email, password);
-    return await userCredential.user.getIdToken(); // Firebase JWT token
-  } catch (error) {
-    console.error("Login Error:", error.message);
-  }
-};
+import {
+  createUserWithEmailAndPassword,
+  signInWithEmailAndPassword,
+} from "firebase/auth";
+import { auth } from "./firebaseConfig";
 
 export const signup = async (email, password) => {
   try {
-    const userCredential = await createUserWithEmailAndPassword(auth, email, password);
-    return await userCredential.user.getIdToken(); // Firebase JWT token
+    const userCredential = await createUserWithEmailAndPassword(
+      auth,
+      email,
+      password
+    );
+    const user = userCredential.user;
+    const token = await user.getIdToken(); // Get Firebase ID Token
+    return token;
   } catch (error) {
-    console.error("Signup Error:", error.message);
+    throw error;
+  }
+};
+
+// Login Function
+export const login = async (email, password) => {
+  try {
+    const userCredential = await signInWithEmailAndPassword(
+      auth,
+      email,
+      password
+    );
+    const user = userCredential.user;
+    const token = await user.getIdToken(); // Get Firebase ID Token
+    return token;
+  } catch (error) {
+    throw error;
   }
 };

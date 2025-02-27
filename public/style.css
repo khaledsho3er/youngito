@@ -17,12 +17,14 @@ body {
 }
 
 .page-red {
-  background-image: url("Assets/Team-Photo-1.webp");
+  background-image: url("Assets/collage young-bw.jpg");
   color: var(--primary-color);
   height: 100vh;
   background-position: center;
   justify-content: center;
   align-items: center;
+  background-size: cover;
+  background-repeat: no-repeat;
 }
 
 .login-form {
