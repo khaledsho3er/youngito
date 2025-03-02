@@ -30,6 +30,33 @@ const AuthForm = ({ isSignUp }) => {
       ? Yup.string().required("Phone number is required")
       : Yup.string(),
   });
+  // const validationSchema = Yup.object({
+  //   username: isSignUp
+  //     ? Yup.string().required("Username is required")
+  //     : Yup.string(),
+
+  //   email: Yup.string()
+  //     .email("Invalid email format")
+  //     .matches(
+  //       /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/,
+  //       "Invalid email format"
+  //     )
+  //     .required("Email is required"),
+
+  //   password: Yup.string()
+  //     .min(8, "Password must be at least 8 characters")
+  //     .matches(/[A-Z]/, "Password must contain at least one uppercase letter")
+  //     .matches(/[a-z]/, "Password must contain at least one lowercase letter")
+  //     .matches(/\d/, "Password must contain at least one number")
+  //     .matches(/[@$!%*?&]/, "Password must contain at least one special character")
+  //     .required("Password is required"),
+
+  //   phoneNumber: isSignUp
+  //     ? Yup.string()
+  //         .matches(/^\+?[1-9]\d{9,14}$/, "Invalid phone number")
+  //         .required("Phone number is required")
+  //     : Yup.string(),
+  // });
 
   const formik = useFormik({
     initialValues: { username: "", email: "", password: "", phoneNumber: "" },
@@ -43,7 +70,7 @@ const AuthForm = ({ isSignUp }) => {
 
           // Send user data to backend with Firebase token
           await axios.post(
-            "http://localhost:5000/api/auth/register",
+            "http://localhost:5000/api/users/register",
             {
               email: values.email,
               name: values.username,
