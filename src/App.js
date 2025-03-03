@@ -4,6 +4,7 @@ import Login from "./Pages/login";
 import Register from "./Pages/register";
 import Home from "./Pages/home";
 import TaskCalendar from "./Pages/calender";
+import CollapsibleSidebar from "./components/sidebar";
 
 const App = () => {
   return (
@@ -13,6 +14,7 @@ const App = () => {
         <Route path="/signup" element={<Register />} />
         <Route path="/home" element={<Home />} />
         <Route path="/calender" element={<TaskCalendar />} />
+        <Route path="/sidebar" element={<CollapsibleSidebar />} />
       </Routes>
     </Router>
   );

@@ -100,6 +100,9 @@ const AuthForm = ({ isSignUp }) => {
       }
     },
   });
+  if (loading) {
+    return <div>Loading...</div>;
+  }
   return (
     <Container component="main" maxWidth="xs">
       <Paper elevation={3} className="glass-container">
