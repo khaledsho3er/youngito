@@ -4,6 +4,9 @@ import { format } from "date-fns";
 const TaskModal = ({ closeModal, selectedDate, refreshTasks }) => {
   const [title, setTitle] = useState("");
   const [assignedTo, setAssignedTo] = useState("");
+  const [assignedBy, setAssignedBy] = useState("");
+  const [assignedClient, setAssignedClient] = useState("");
+  const [startDate, setStartDate] = useState("");
   const [endDate, setEndDate] = useState("");
   const [priority, setPriority] = useState("Medium");
   const [users, setUsers] = useState([]);
@@ -13,15 +16,22 @@ const TaskModal = ({ closeModal, selectedDate, refreshTasks }) => {
   }, []);
 
   const fetchUsers = async () => {
-    const response = await fetch("http://localhost:5000/api/users");
-    const data = await response.json();
-    setUsers(data);
+    try {
+      const response = await fetch("http://localhost:5000/api/users/users");
+      const data = await response.json();
+      setUsers(data);
+    } catch (error) {
+      console.error("Error fetching users:", error);
+    }
   };
 
   const handleSave = async () => {
     const taskData = {
       title,
       assignedTo,
+      assignedBy,
+      assignedClient,
+      startDate: format(selectedDate, "yyyy-MM-dd"),
       dueDate: selectedDate,
       endDate,
       priority,
@@ -41,9 +51,10 @@ const TaskModal = ({ closeModal, selectedDate, refreshTasks }) => {
   };
 
   return (
-    <div className="modal">
+    <div className="modal-overlay">
       <div className="modal-content">
         <h3>Create Task</h3>
+
         <label>Title:</label>
         <input
           type="text"
@@ -58,7 +69,22 @@ const TaskModal = ({ closeModal, selectedDate, refreshTasks }) => {
         >
           <option value="">Select an editor</option>
           {users.map((user) =>
-            user.role === "Editor" ? (
+            user.role === "editor" ? (
+              <option key={user._id} value={user._id}>
+                {user.name}
+              </option>
+            ) : null
+          )}
+        </select>
+
+        <label>Client:</label>
+        <select
+          value={assignedClient}
+          onChange={(e) => setAssignedClient(e.target.value)}
+        >
+          <option value="">Select a client</option>
+          {users.map((user) =>
+            user.role === "client" ? (
               <option key={user._id} value={user._id}>
                 {user.name}
               </option>
@@ -87,8 +113,14 @@ const TaskModal = ({ closeModal, selectedDate, refreshTasks }) => {
           <option value="High">High</option>
         </select>
 
-        <button onClick={handleSave}>Save</button>
-        <button onClick={closeModal}>Cancel</button>
+        <div className="button-container">
+          <button onClick={handleSave} className="save-btn">
+            Save
+          </button>
+          <button onClick={closeModal} className="cancel-btn">
+            Cancel
+          </button>
+        </div>
       </div>
     </div>
   );
