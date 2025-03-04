@@ -1,14 +1,25 @@
-import React from "react";
+import React, { useEffect, useState } from "react";
 import { Typography } from "@mui/material";
 
 const Home = () => {
+  const [userName, setUserName] = useState("");
+
+  useEffect(() => {
+    const storedUser = localStorage.getItem("user");
+    console.log("Stored User:", storedUser); // Debugging
+
+    if (storedUser) {
+      const user = JSON.parse(storedUser);
+      setUserName(user.name || "Guest");
+    }
+  }, []);
+
   return (
     <div
       style={{
         height: "100vh",
         width: "100vw",
         backgroundColor: "black",
-
         alignItems: "center",
       }}
       className="login-form"
@@ -30,7 +41,7 @@ const Home = () => {
           marginTop: "5%",
         }}
       >
-        Stay Tuned !!
+        Welcome, {userName}! 👋
       </Typography>
     </div>
   );
