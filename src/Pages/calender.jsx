@@ -128,7 +128,6 @@ const TaskCalendar = () => {
           closeModal={() => setModalOpen(false)}
           selectedDate={selectedDate}
           refreshTasks={fetchTasks}
-          userSession={userSession} // Ensure this is being passed
           eventType={selectedEventType}
           setEventType={setSelectedEventType}
         />

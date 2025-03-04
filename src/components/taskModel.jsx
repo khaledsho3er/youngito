@@ -1,7 +1,8 @@
 import React, { useState, useEffect } from "react";
 import { format } from "date-fns";
+import { getAuth } from "firebase/auth";
 
-const TaskModal = ({ closeModal, selectedDate, refreshTasks, userSession }) => {
+const TaskModal = ({ closeModal, selectedDate, refreshTasks }) => {
   const [title, setTitle] = useState("");
   const [eventType, setEventType] = useState("task");
   const [assignedTo, setAssignedTo] = useState("");
@@ -11,9 +12,34 @@ const TaskModal = ({ closeModal, selectedDate, refreshTasks, userSession }) => {
   const [status, setStatus] = useState("Pending");
   const [description, setDescription] = useState("");
   const [users, setUsers] = useState([]);
+  const [userSession, setUserSession] = useState(null);
+  const [clients, setClients] = useState([]);
 
   useEffect(() => {
     fetchUsers();
+    fetchClients(); // Fetch clients separately
+    const storedUser = localStorage.getItem("user");
+    if (storedUser) {
+      setUserSession(JSON.parse(storedUser));
+    }
+  }, []);
+
+  const fetchClients = async () => {
+    try {
+      const response = await fetch("http://localhost:5000/api/clients/");
+      const data = await response.json();
+      setClients(data);
+    } catch (error) {
+      console.error("Error fetching clients:", error);
+    }
+  };
+
+  useEffect(() => {
+    fetchUsers();
+    const storedUser = localStorage.getItem("user");
+    if (storedUser) {
+      setUserSession(JSON.parse(storedUser));
+    }
   }, []);
 
   const fetchUsers = async () => {
@@ -27,62 +53,57 @@ const TaskModal = ({ closeModal, selectedDate, refreshTasks, userSession }) => {
   };
 
   const handleSave = async () => {
-    if (!userSession || !userSession._id) {
-      alert("User session is not available. Please log in again.");
-      return;
-    }
-
-    if (!title || !description || !assignedTo) {
-      alert("Please fill in all required fields!");
-      return;
-    }
-
-    const taskData = {
-      title,
-      eventType,
-      assignedTo,
-      assignedBy: userSession._id, // Auto-assign the creator
-      assignedClient,
-      startDate: format(selectedDate, "yyyy-MM-dd"),
-      dueDate: selectedDate,
-      endDate: endDate ? format(new Date(endDate), "yyyy-MM-dd") : "",
-      description,
-      status,
-      priority,
-    };
-
     try {
-      const response = await fetch("http://localhost:5000/api/tasks/", {
+      const auth = getAuth(); // Initialize Firebase Auth
+      const user = auth.currentUser; // Get the logged-in user
+
+      if (!user) {
+        console.error("No user found!");
+        return;
+      }
+
+      const token = await user.getIdToken(); // Get fresh Firebase ID token
+      console.log("Sending Token:", token); // Debugging: Check if token is valid
+
+      const taskData = {
+        title: "New Task",
+        description: "Task description...",
+        assignedTo: "someUserId", // Replace with actual user ID
+      };
+
+      const response = await fetch("http://localhost:5000/api/tasks/tasks", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
-          Authorization: `Bearer ${localStorage.getItem("token")}`,
+          Authorization: `Bearer ${token}`, // Ensure "Bearer" prefix
         },
         body: JSON.stringify(taskData),
       });
 
+      const data = await response.json();
+
       if (!response.ok) {
-        const errorData = await response.json();
-        throw new Error(errorData.message || "Failed to create task");
+        throw new Error(data.message || "Failed to create task");
       }
 
-      refreshTasks();
-      closeModal();
+      console.log("Task created successfully!", data);
     } catch (error) {
       console.error("Error creating task:", error);
-      alert(error.message);
     }
   };
+
+  console.log("User session:", userSession);
+  console.log("User Firebase UID:", userSession?.firebaseUID);
 
   return (
     <div className="modal-overlay">
       <div className="modal-content">
         <div className="modal-header">
           <h3>Create Event</h3>
+          <p>{userSession && userSession.name}</p>
           <img src="./Assets/blackYoung.png" alt="logo-young" />
         </div>
         <div className="form-grid">
-          {/* Event Type & Title */}
           <div className="form-group">
             <label>Event Type:</label>
             <select
@@ -107,7 +128,6 @@ const TaskModal = ({ closeModal, selectedDate, refreshTasks, userSession }) => {
             />
           </div>
 
-          {/* Assigned To & Client */}
           <div className="form-group">
             <label>Assign to:</label>
             <select
@@ -132,17 +152,14 @@ const TaskModal = ({ closeModal, selectedDate, refreshTasks, userSession }) => {
               onChange={(e) => setAssignedClient(e.target.value)}
             >
               <option value="">Select a client</option>
-              {users.map((user) =>
-                user.role === "client" ? (
-                  <option key={user._id} value={user._id}>
-                    {user.name}
-                  </option>
-                ) : null
-              )}
+              {clients.map((client) => (
+                <option key={clients._id} value={clients._id}>
+                  {client.name}
+                </option>
+              ))}
             </select>
           </div>
 
-          {/* Start Date & End Date */}
           <div className="form-group">
             <label>Start Date:</label>
             <input
@@ -161,7 +178,6 @@ const TaskModal = ({ closeModal, selectedDate, refreshTasks, userSession }) => {
             />
           </div>
 
-          {/* Status & Priority */}
           <div className="form-group">
             <label>Status:</label>
             <select value={status} onChange={(e) => setStatus(e.target.value)}>
@@ -183,7 +199,6 @@ const TaskModal = ({ closeModal, selectedDate, refreshTasks, userSession }) => {
             </select>
           </div>
 
-          {/* Full Width Description */}
           <div className="form-group full-width">
             <label>Description:</label>
             <textarea

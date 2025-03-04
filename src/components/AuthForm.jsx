@@ -92,7 +92,7 @@ const AuthForm = ({ isSignUp }) => {
         }
 
         localStorage.setItem("token", token); // Store Firebase Token
-        navigate("/home");
+        navigate("/sidebar#");
       } catch (error) {
         alert("Authentication failed: " + error.message);
       } finally {

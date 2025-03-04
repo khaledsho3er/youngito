@@ -104,7 +104,7 @@ body {
 }
 
 .sidebar {
-  background-color: #1f2937;
+  background-color: var(--second-secondary-color);
   color: white;
   transition: width 0.3s ease-in-out;
   display: flex;

@@ -1,6 +1,7 @@
 import {
   createUserWithEmailAndPassword,
   signInWithEmailAndPassword,
+  getAuth,
 } from "firebase/auth";
 import { auth } from "./firebaseConfig";
 
@@ -67,5 +68,24 @@ export const login = async (email, password) => {
     return data.user; // Return user details
   } catch (error) {
     throw error;
+  }
+};
+
+export const getFirebaseToken = async () => {
+  const auth = getAuth();
+  const user = auth.currentUser;
+
+  if (!user) {
+    console.error("User not logged in");
+    return null;
+  }
+
+  try {
+    const token = await user.getIdToken();
+    console.log("Firebase Token:", token); // Debugging
+    return token;
+  } catch (error) {
+    console.error("Error getting Firebase token:", error);
+    return null;
   }
 };
